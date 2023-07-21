@@ -1,0 +1,175 @@
+version: '1.0'
+services:
+  db_test:
+    container_name: db_test
+    image: postgres
+    restart: ${restart}
+    environment:
+      POSTGRES_USER: ${postgres_user_test}
+      POSTGRES_PASSWORD: ${postgres_password_test}
+      POSTGRES_DB: ${postgres_db_name_test}
+    networks:
+      default:
+      traefik_gateway:
+
+  pgadmin_test:
+    container_name: pgadmin_test
+    depends_on: 
+      - db_test
+    image: dpage/pgadmin4
+    restart: ${restart}
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${pgadmin_user_test}
+      PGADMIN_DEFAULT_PASSWORD: ${pgadmin_password_test}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin_test.tls=true"
+      - "traefik.http.routers.pgadmin_test.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin_test.rule=Host(`test.pgadmin.${base_url}`)"
+      - "traefik.http.services.pgadmin_test.loadbalancer.server.port=80"
+    networks:
+      default:
+      traefik_gateway:
+
+  db_lrs_test:
+    image: postgres
+    container_name: db_lrs_test
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${lrs_postgres_user_test}
+      POSTGRES_PASSWORD: ${lrs_postgres_password_test}
+      POSTGRES_DB: ${lrs_postgres_db_name_test}
+    restart: ${restart}
+    networks:
+      default:
+      traefik_gateway:
+
+  lrs_test:
+    image: yetanalytics/lrsql:${lrs_tag}
+    container_name: lrs_test
+    command:
+      - /lrsql/bin/run_postgres.sh
+    depends_on:
+      - db_lrs_test
+    environment:
+      LRSQL_API_KEY_DEFAULT: ${lrs_key_test}
+      LRSQL_API_SECRET_DEFAULT: ${lrs_secrect_test}
+      LRSQL_ADMIN_USER_DEFAULT: ${lrs_username_test}
+      LRSQL_ADMIN_PASS_DEFAULT: ${lrs_password_test}
+      LRSQL_DB_HOST: db_lrs_test
+      LRSQL_DB_NAME: ${lrs_postgres_db_name_test}
+      LRSQL_DB_USER: ${lrs_postgres_user_test}
+      LRSQL_DB_PASSWORD: ${lrs_postgres_password_test}
+      LRSQL_ALLOW_ALL_ORIGINS : true
+      LRSQL_POOL_INITIALIZATION_FAIL_TIMEOUT: 10000
+    restart: ${restart}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lrs_test.rule=Host(`test.lrs.${base_url}`)"
+      - "traefik.http.routers.lrs_test.tls=true"
+      - "traefik.http.services.lrs_test.loadbalancer.server.port=8080"
+    networks:
+      default:
+      traefik_gateway:
+
+  backend_test:
+    image: ghcr.io/haski-rak/haski-backend:${backend_tag}
+    container_name: backend_test
+    depends_on:
+      - pgadmin_test
+      - lrs_test
+    env_file:
+      - ${env_file_backend_test}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_backend_test.rule=Host(`test.haski.${base_url}`)"
+      - "traefik.http.routers.haski_backend_test.tls=true"
+      - "traefik.http.services.haski_backend_test.loadbalancer.server.port=5000"
+    restart: ${restart}
+    networks:
+      default:
+      traefik_gateway:
+
+  frontend_test:
+    image: ghcr.io/haski-rak/haski-frontend-frontend:${frontend_tag}
+    depends_on:
+      - backend_test
+    command:
+      - "nginx"
+      - "-g"
+      - "daemon off;"
+    env_file:
+      - ${env_file_frontend_test}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_frontend_test.tls=true"
+      - "traefik.http.routers.haski_frontend_test.entrypoints=websecure"
+      - "traefik.http.routers.haski_frontend_test.rule=Host(`${base_url}`)"
+      - "traefik.http.services.haski_frontend_test.loadbalancer.server.port=80"
+    restart: ${restart}
+    networks:
+      default:
+      traefik_gateway:
+
+  maria_db_test:
+    image: docker.io/bitnami/mariadb:${maria_db_tag}
+    container_name: maria_db_test
+    environment:
+      - MARIADB_USER=${maria_db_user_test}
+      - MARIADB_PASSWORD=${maria_db_password_test}
+      - MARIADB_DATABASE=${maria_db_database_test}
+      - MARIADB_ROOT_PASSWORD=${maria_db_root_password_test}
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - 'mariadb_data_test:/bitnami/mariadb'
+    restart: ${restart}
+
+  moodle_test:
+    image: docker.io/bitnami/moodle:${moodle_tag}
+    container_name: moodle_test
+    depends_on:
+      - maria_db_test
+    environment:
+      - MOODLE_DATABASE_HOST=maria_db_test
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_USER=${maria_db_user_test}
+      - MOODLE_DATABASE_PASSWORD=${maria_db_password_test}
+      - MOODLE_DATABASE_NAME=${maria_db_database_test}
+    volumes:
+      - 'moodle_data_test:/bitnami/moodle'
+      - 'moodledata_data_test:/bitnami/moodledata'
+    restart: ${restart}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.moodle_test.rule=Host(`test.moodle.${base_url}`)"
+      - "traefik.http.routers.moodle_test.tls=true"
+    networks:
+      default:
+      traefik_gateway:
+
+  phpmyadmin_test:
+    image: phpmyadmin
+    container_name: phpmyadmin_test
+    restart: ${restart}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin_test.rule=Host(`test.db.moodle.${base_url}`)"
+      - "traefik.http.routers.phpmyadmin_test.tls=true"
+    environment:
+      - PMA_ARBITRARY=1
+
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true
+    
+volumes:
+  mariadb_data_test:
+    driver: local
+  moodle_data_test:
+    driver: local
+  moodledata_data_test:
+    driver: local

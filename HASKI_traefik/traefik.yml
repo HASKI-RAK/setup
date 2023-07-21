@@ -1,0 +1,27 @@
+providers:
+  docker:
+    exposedByDefault: false
+    network: traefik_gateway
+  file:
+    directory: "/etc/traefik/dynamic"
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: :443
+
+accessLog:
+  filePath: "/traefiklogs/access.log"
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true
+logs:
+  level: TRACE
