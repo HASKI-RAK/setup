@@ -19,3 +19,5 @@ For setting up the project, please follow those steps:
 5. Move into the HASKI_traefik folder and run the command `docker compose --env-file ../.env up -d`.
 
 Now, you can access the different services via your webbrowser.
+The structure of the set up infrastructure can be seen here:
+![Aufbau](https://github.com/HASKI-RAK/setup/assets/49634213/8a3fc02a-f18a-4894-8877-1ed9c0216e37)
