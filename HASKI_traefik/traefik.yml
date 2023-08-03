@@ -15,6 +15,16 @@ entryPoints:
           permanent: true
   websecure:
     address: :443
+    http:
+      tls:
+        certResolver: le
+
+certificatesResolvers:
+  le:
+    acme:
+      tlschallenge: true
+      email: marc.normann@th-ab.de
+      storage: "/letsencrypt/acme.json"
 
 accessLog:
   filePath: "/traefiklogs/access.log"
