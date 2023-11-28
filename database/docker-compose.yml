@@ -1,0 +1,44 @@
+version: '1.0'
+services:
+  haski_db:
+    container_name: haski_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: postgres_db_name
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_db.tls=true"
+      - "traefik.http.routers.haski_db.entrypoints=websecure"
+      - "traefik.http.services.haski_db.loadbalancer.server.port=5432"
+    networks:
+      default:
+      traefik_gateway:
+
+  haski_pgadmin:
+    container_name: haski_pgadmin
+    depends_on:
+      - haski_db
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin_email
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_pgadmin.tls=true"
+      - "traefik.http.routers.haski_pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.haski_pgadmin.rule=Host(`pgadmin.url`)"
+      - "traefik.http.services.haski_pgadmin.loadbalancer.server.port=80"
+      - "traefik.http.routers.haski_pgadmin.tls.certresolver=le"
+    networks:
+      default:
+      traefik_gateway:
+
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true

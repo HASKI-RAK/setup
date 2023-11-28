@@ -1,0 +1,5 @@
+tls:
+  certificates:
+  options:
+    default:
+      sniStrict: false

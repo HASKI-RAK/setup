@@ -1,0 +1,25 @@
+version: '1.0'
+services:
+  haski_backend:
+    image: ghcr.io/haski-rak/haski-backend:main
+    container_name: haski_backend
+    env_file:
+      - ./.flaskenv
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_backend.rule=Host(`backend.url`)"
+      - "traefik.http.routers.haski_backend.tls=true"
+      - "traefik.http.services.haski_backend.loadbalancer.server.port=5000"
+      - "traefik.http.routers.haski_backend.tls.certresolver=le"
+    volumes:
+      - ./keys:/app/keys
+    restart: always
+    networks:
+      default:
+      traefik_gateway:
+
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true

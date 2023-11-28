@@ -1,0 +1,27 @@
+version: '1.0'
+services:
+  haski_frontend:
+    image: ghcr.io/haski-rak/haski-frontend-frontend:main
+    command:
+      - "nginx"
+      - "-g"
+      - "daemon off;"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_frontend.tls=true"
+      - "traefik.http.routers.haski_frontend.entrypoints=websecure"
+      - "traefik.http.routers.haski_frontend.rule=Host(`frontend.url`)"
+      - "traefik.http.services.haski_frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.haski_frontend.tls.certresolver=le"
+    volumes:
+      - ./config:/usr/share/nginx/html/config
+    restart: always
+    networks:
+      default:
+      traefik_gateway:
+
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true

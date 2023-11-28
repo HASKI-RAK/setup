@@ -1,0 +1,54 @@
+version: '1.0'
+services:
+  haski_lrs_db:
+    image: postgres
+    container_name: haski_lrs_db
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: lrs_db_user
+      POSTGRES_PASSWORD: lrs_db_password
+      POSTGRES_DB: lrs_db_name
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_lrs_db.tls=true"
+      - "traefik.http.routers.haski_lrs_db.entrypoints=websecure"
+    restart: always
+    networks:
+      default:
+      traefik_gateway:
+
+  haski_lrs:
+    image: yetanalytics/lrsql:latest
+    container_name: haski_lrs
+    command:
+      - /lrsql/bin/run_postgres.sh
+    depends_on:
+      - haski_lrs_db
+    environment:
+      LRSQL_API_KEY_DEFAULT: lrs_key
+      LRSQL_API_SECRET_DEFAULT: lrs_secret
+      LRSQL_ADMIN_USER_DEFAULT: lrs_username
+      LRSQL_ADMIN_PASS_DEFAULT: lrs_password
+      LRSQL_DB_HOST: haski_lrs_db
+      LRSQL_DB_NAME: lrs_db_name
+      LRSQL_DB_USER: lrs_db_user
+      LRSQL_DB_PASSWORD: lrs_db_password
+      LRSQL_ALLOW_ALL_ORIGINS : true
+      LRSQL_POOL_INITIALIZATION_FAIL_TIMEOUT: 10000
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_lrs.rule=Host(`lrs.url`)"
+      - "traefik.http.routers.haski_lrs.tls=true"
+      - "traefik.http.services.haski_lrs.loadbalancer.server.port=8080"
+      - "traefik.http.routers.haski_lrs.tls.certresolver=le"
+    networks:
+      default:
+      traefik_gateway:
+
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true

@@ -22,8 +22,8 @@ entryPoints:
 certificatesResolvers:
   le:
     acme:
-      tlschallenge: true
-      email: marc.normann@th-ab.de
+      tlsChallenge: true
+      email: "email@mail.com"
       storage: "/letsencrypt/acme.json"
 
 accessLog:
@@ -34,4 +34,5 @@ networks:
     name: traefik_gateway
     external: true
 logs:
-  level: TRACE
+  level: DEBUG
+  filePath: "/traefiklogs/log-file.log"

@@ -1,0 +1,65 @@
+version: '1.0'
+services:
+  haski_maria_db:
+    image: docker.io/bitnami/mariadb:10.6
+    container_name: haski_maria_db
+    environment:
+      - MARIADB_USER=maria_db_user
+      - MARIADB_PASSWORD=maria_db_password
+      - MARIADB_DATABASE=bitnami_moodle
+      - MARIADB_ROOT_PASSWORD=maria_db_root_password
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - 'mariadb_data:/bitnami/mariadb'
+    restart: always
+
+  haski_moodle:
+    image: docker.io/bitnami/moodle:4.2
+    container_name: haski_moodle
+    depends_on:
+      - haski_maria_db
+    environment:
+      - MOODLE_DATABASE_HOST=haski_maria_db
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_USER=maria_db_user
+      - MOODLE_DATABASE_PASSWORD=maria_db_password
+      - MOODLE_DATABASE_NAME=bitnami_moodle
+    volumes:
+      - 'moodle_data:/bitnami/haski_moodle'
+      - 'moodledata_data:/bitnami/moodledata'
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_moodle.rule=Host(`lms.url`)"
+      - "traefik.http.routers.haski_moodle.tls=true"
+      - "traefik.http.routers.haski_moodle.tls.certresolver=le"
+    networks:
+      default:
+      traefik_gateway:
+
+  haski_phpmyadmin:
+    image: phpmyadmin
+    container_name: haski_phpmyadmin
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.haski_phpmyadmin.rule=Host(`phpmyadmin.url`)"
+      - "traefik.http.routers.haski_phpmyadmin.tls=true"
+      - "traefik.http.routers.haski_phpmyadmin.tls.certresolver=le"
+    environment:
+      - PMA_ARBITRARY=1
+
+volumes:
+  mariadb_data:
+    driver: local
+  moodle_data:
+    driver: local
+  moodledata_data:
+    driver: local
+
+networks:
+  default:
+  traefik_gateway:
+    name: traefik_gateway
+    external: true

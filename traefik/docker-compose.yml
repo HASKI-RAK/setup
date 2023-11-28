@@ -3,18 +3,15 @@ services:
   traefik:
     image: traefik:v3.0
     restart: unless-stopped
-    command:
-      - "--providers.file.filename=/traefik.yml"
     ports:
      - "80:80"
      - "8080:8080"
      - "443:443"
     volumes:
-     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+     - "/var/run/docker.sock:/var/run/docker.sock"
      - "./traefik.yml:/etc/traefik/traefik.yml"
      - "./traefiklogs:/accesslogs"
      - "./certs:/certs"
-     - "./letsencrypt:/letsencrypt"
     networks:
       default:
       traefik_gateway:

@@ -5,19 +5,17 @@ This Repository provides the needed files for setting up the HASKI System on a s
 Moreover, this Setup Repository uses the following Repositories/Docker Images:
 - [HASKI Backend](https://github.com/HASKI-RAK/HASKI-Backend)
 - [HASKI Frontend](https://github.com/HASKI-RAK/HASKI-Frontend)
-- [Yet Analytics LRSQL](https://github.com/yetanalytics/lrsql/https://github.com/yetanalytics/lrsql/)
+- [Yet Analytics LRSQL](https://github.com/yetanalytics/lrsql/)
 - [Postgres](https://hub.docker.com/_/postgres/)
 - [PGAdmin4](https://hub.docker.com/r/dpage/pgadmin4/)
 - [Bitnami Moodle](https://hub.docker.com/r/bitnami/moodle/#!)
 
+Additionally, we recommend to use the following extensions for your Moodle:
+- [HASKI Theme](https://github.com/HASKI-RAK/theme_haskiminimal)
+- [HASKI xAPI Logstore Extension](https://github.com/HASKI-RAK/Moodle-xAPI-Plugin)
 
-For setting up the project, please follow those steps:
-1. Customize the .env file to your needs. This file contains all variables for the complete system, that can be adjusted.
-2. (Optional) Move into the HASKI_dev folder, customize the .env files and run the command `docker compose --env-file ../.env up -d`.
-3. (Optional) Move into the HASKI_test folder, customize the .env files and run the command `docker compose --env-file ../.env up -d`.
-4. Move into the HASKI_prod folder, customize the .env files and run the command `docker compose --env-file ../.env up -d`.
-5. Move into the HASKI_traefik folder and run the command `docker compose --env-file ../.env up -d`.
 
-Now, you can access the different services via your webbrowser.
-The structure of the set up infrastructure can be seen here:
-![Aufbau](https://github.com/HASKI-RAK/setup/assets/49634213/8a3fc02a-f18a-4894-8877-1ed9c0216e37)
+For setting up the project, please follow the steps outlined in the [Wiki](https://github.com/HASKI-RAK/setup/wiki).
+Please remember to change any sensible data in the docker compose files to your needs!
+
+After following all steps, you can access the different services via your webbrowser.
