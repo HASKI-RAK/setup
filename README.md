@@ -19,3 +19,30 @@ For setting up the project, please follow the steps outlined in the [Wiki](https
 Please remember to change any sensible data in the docker compose files to your needs!
 
 After following all steps, you can access the different services via your webbrowser.
+
+------------------------------------------------------------------------------
+
+# Structure of HASKI Setup
+
+In the following pictures, you can see the structure of the HASKI-System when set up.
+
+A user accesses the system via it's computer over the internet and will reach the server for the request.
+
+The server will use Traefik as reverse proxy and forward the request to the right part of the system.
+
+All parts - including Traefik - that are pictured within the server, are running as Docker Container.
+
+![struktur2](https://github.com/HASKI-RAK/setup/assets/49634213/1d7cf82b-1add-4046-b1b7-345abb979771)
+
+
+For clearifying the internal working of the system, the following picture will describe the communication within HASKI.
+
+The user will access the Frontend of the application, which will get information from both, the Backend and Moodle.
+
+These in turn are communicating with their dedicated database.
+
+For Moodle it is a MariaDB and for the Backend it is a PostgreSQL.
+
+While working on the system, the Frontend (and Moodle if configured) are sending xAPI-Statements to the LRS, which stores this data in a seperate PostgreSQL database.
+
+![Struktur](https://github.com/HASKI-RAK/setup/assets/49634213/bffea1c2-3685-473d-b701-19d79e570026)
