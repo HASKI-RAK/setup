@@ -1,6 +1,8 @@
 # HASKI Setup
 This Repository provides the needed files for setting up the HASKI System on a server.
 [Docker](https://www.docker.com/) and [Traefik](https://traefik.io/) are used for the setup.
+The certificates within Traefik will be created by [Let's Encrypt](https://letsencrypt.org/).
+Configuration can be done in `traefik->traefik.yml`.
 
 Moreover, this Setup Repository uses the following Repositories/Docker Images:
 - [HASKI Backend](https://github.com/HASKI-RAK/HASKI-Backend)
