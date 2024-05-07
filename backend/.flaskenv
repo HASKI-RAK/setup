@@ -16,3 +16,5 @@ CLIENT_ID=client_id
 KEY_ID=kid
 KEY_N_VALUE=n
 JWT_KEYS_LOCATION="./keys"
+REST_LMS_URL=https://lms.url
+REST_TOKEN=f5b7...
